@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>FazFácil — Ferramentas Gratuitas e Rápidas</title>
+  <meta name="description" content="Portal gratuito com ferramentas práticas: calculadora de desconto, contador de dias, divisor de contas e organizador de estudos.">
+  <meta name="theme-color" content="#10b981">
+  <style>
+    :root {
+      --primary: #10b981;
+      --primary-hover: #059669;
+      --secondary: #8b5cf6;
+      --bg-page: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-card: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --danger: #ef4444;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+      --font-sans: system-ui, -apple-system, Roboto, sans-serif;
+    }
+    [data-theme="dark"] {
+      --bg-page: #090d16;
+      --bg-surface: #111827;
+      --bg-card: #1f2937;
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --border-color: #374151;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+    }
+    .container { width: 100%; max-width: 850px; margin: 0 auto; padding: 0 1rem; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+    .app-header { background: var(--bg-surface); border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 50; }
+    .header-content { display: flex; align-items: center; justify-content: space-between; height: 60px; }
+    .brand { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: var(--text-main); font-size: 1.25rem; }
+    .brand strong { color: var(--primary); }
+    .btn-icon { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    body[data-theme="light"] .icon-moon { display: block; }
+    body[data-theme="light"] .icon-sun { display: none; }
+    body[data-theme="dark"] .icon-moon { display: none; }
+    body[data-theme="dark"] .icon-sun { display: block; }
+    .ad-slot-wrapper { padding: 0.5rem 1rem; display: flex; justify-content: center; }
+    .ad-container { width: 100%; max-width: 728px; min-height: 50px; border: 1px dashed var(--border-color); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; }
+    .ad-placeholder-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
+    .app-main { flex: 1; padding: 1.5rem 0; }
+    .view { display: none; }
+    .view.active { display: block; }
+    .breadcrumb a { color: var(--secondary); text-decoration: none; font-size: 0.95rem; font-weight: 500; }
+    .hero { text-align: center; margin-bottom: 2rem; }
+    .hero h1 { font-size: 1.75rem; font-weight: 800; }
+    .hero p { color: var(--text-muted); margin-bottom: 1rem; }
+    .search-box input { width: 100%; max-width: 480px; padding: 0.75rem 1.25rem; border-radius: 50px; border: 1px solid var(--border-color); background: var(--bg-surface); color: var(--text-main); outline: none; }
+    .tools-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+    @media(min-width: 600px) { .tools-grid { grid-template-columns: 1fr 1fr; } }
+    .tool-card { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm); }
+    .card-icon { font-size: 1.5rem; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); margin-bottom: 0.75rem; }
+    .icon-green { background: rgba(16, 185, 129, 0.12); }
+    .icon-purple { background: rgba(139, 92, 246, 0.12); }
+    .tool-card h2 { font-size: 1.15rem; margin-bottom: 0.25rem; }
+    .tool-card p { color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem; }
+    .tool-layout { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin: 1.5rem 0; }
+    @media(min-width: 768px) { .tool-layout { grid-template-columns: 1.2fr 1fr; } }
+    .form-card, .result-card { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; box-shadow: var(--shadow-sm); }
+    .form-group { margin-bottom: 1rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem; }
+    input[type="text"], input[type="number"], input[type="date"] { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); border-radius: var(--radius-sm); outline: none; font-size: 1rem; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; padding: 0.75rem 1rem; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; border: none; text-decoration: none; font-size: 0.9rem; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-secondary { background: rgba(16, 185, 129, 0.12); color: var(--primary); width: 100%; }
+    .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); }
+    .btn-danger { background: transparent; border: 1px solid rgba(239, 68, 68, 0.3); color: var(--danger); }
+    .btn-sm { padding: 0.35rem 0.6rem; font-size: 0.8rem; border-radius: 6px; cursor: pointer; }
+    .result-card { text-align: center; display: flex; flex-direction: column; justify-content: center; }
+    .result-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; }
+    .result-value { font-size: 2rem; font-weight: 800; margin: 0.4rem 0 0.8rem; }
+    .text-green { color: var(--primary); }
+    .text-purple { color: var(--secondary); }
+    .result-details { border-top: 1px solid var(--border-color); padding-top: 0.75rem; font-size: 0.9rem; }
+    .detail-item { display: flex; justify-content: space-between; margin-bottom: 0.35rem; }
+    .badge-reconciliacao { font-size: 0.8rem; padding: 0.4rem; background: rgba(139, 92, 246, 0.1); color: var(--secondary); border-radius: 6px; margin-top: 0.5rem; }
+    .study-progress-card { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.25rem; }
+    .progress-info { display: flex; justify-content: space-between; font-weight: 600; margin-bottom: 0.5rem; }
+    .progress-bar-bg { background: var(--border-color); height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 0.5rem; }
+    .progress-bar-fill { background: linear-gradient(90deg, var(--primary), var(--secondary)); height: 100%; transition: width 0.3s; }
+    .study-add-form { display: grid; grid-template-columns: 1fr; gap: 0.5rem; margin-bottom: 1rem; }
+    @media(min-width: 600px) { .study-add-form { grid-template-columns: 2fr 1.5fr 1fr auto; } }
+    .task-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+    .task-item { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; border: 1px solid var(--border-color); background: var(--bg-card); border-radius: var(--radius-sm); }
+    .task-item.done .task-title { text-decoration: line-through; color: var(--text-muted); }
+    .task-tag { background: rgba(139, 92, 246, 0.15); color: var(--secondary); padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.75rem; }
+    .toast { position: fixed; bottom: 20px; right: 20px; background: var(--text-main); color: var(--bg-page); padding: 0.75rem 1.25rem; border-radius: var(--radius-sm); opacity: 0; transform: translateY(50px); transition: 0.2s; z-index: 999; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .app-footer { background: var(--bg-surface); border-top: 1px solid var(--border-color); padding: 1.5rem 0; margin-top: auto; font-size: 0.85rem; color: var(--text-muted); text-align: center; }
+  </style>
+</head>
+<body data-theme="light">
+  <header class="app-header">
+    <div class="container header-content">
+      <a href="#home" class="brand">⚡ Faz<strong>Fácil</strong></a>
+      <button id="theme-toggle" class="btn-icon" aria-label="Alternar tema">
+        <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <aside class="ad-slot-wrapper"><div class="ad-container"><span class="ad-placeholder-label">Espaço para Anúncio</span></div></aside>
+
+  <main class="container app-main">
+    <div id="toast" class="toast"></div>
+
+    <!-- HOME -->
+    <section id="view-home" class="view active">
+      <div class="hero">
+        <h1>Ferramentas diretas ao ponto, <span style="color:var(--primary)">sem enrolação</span>.</h1>
+        <p>Gratuito, sem login, otimizado para o seu celular.</p>
+        <div class="search-box">
+          <input type="search" id="tool-search" placeholder="O que você precisa fazer hoje? (ex: desconto, dias...)">
+        </div>
+      </div>
+      <div class="tools-grid" id="tools-grid">
+        <article class="tool-card" data-keywords="desconto porcentagem promocao loja preco economia">
+          <div class="card-icon icon-green">🏷️</div>
+          <h2>Calculadora de Desconto</h2>
+          <p>Descubra o valor final e veja quanto você economizou.</p>
+          <a href="#calculadora-desconto" class="btn btn-secondary">Abrir calculadora</a>
+        </article>
+        <article class="tool-card" data-keywords="dias datas calendario prazo vencimento contagem">
+          <div class="card-icon icon-purple">📅</div>
+          <h2>Contador de Dias</h2>
+          <p>Calcule os dias até um evento ou veja o tempo decorrido.</p>
+          <a href="#contador-de-dias" class="btn btn-secondary">Calcular dias</a>
+        </article>
+        <article class="tool-card" data-keywords="dividir conta restaurante bar gorjeta rateio centavos">
+          <div class="card-icon icon-green">🍕</div>
+          <h2>Divisor de Contas</h2>
+          <p>Divida contas de restaurantes com reconciliação de centavos.</p>
+          <a href="#dividir-conta" class="btn btn-secondary">Dividir conta</a>
+        </article>
+        <article class="tool-card" data-keywords="estudos tarefas revisao materias faculdade escola">
+          <div class="card-icon icon-purple">📚</div>
+          <h2>Organizador de Estudos</h2>
+          <p>Gerencie tarefas salvas direto na memória do seu aparelho.</p>
+          <a href="#organizador-estudos" class="btn btn-secondary">Abrir tarefas</a>
+        </article>
+      </div>
+    </section>
+
+    <!-- CALCULADORA DE DESCONTO -->
+    <section id="view-calculadora-desconto" class="view">
+      <nav class="breadcrumb"><a href="#home">← Voltar às ferramentas</a></nav>
+      <h1 style="margin: 1rem 0 0.25rem;">Calculadora de Desconto</h1>
+      <p style="color:var(--text-muted); margin-bottom:1rem;">Preço final e economia instantânea.</p>
+      <div class="tool-layout">
+        <div class="form-card">
+          <div class="form-group">
+            <label for="desc-preco">Preço Original (R$)</label>
+            <input type="text" id="desc-preco" placeholder="100,00" inputmode="decimal">
+          </div>
+          <div class="form-group">
+            <label for="desc-porcentagem">Desconto (%)</label>
+            <input type="number" id="desc-porcentagem" placeholder="15" min="0" max="100">
+          </div>
+          <div style="display:flex; gap:0.5rem;">
+            <button id="btn-desc-limpar" class="btn btn-outline" style="flex:1;">Limpar</button>
+            <button id="btn-desc-compartilhar" class="btn btn-primary" style="flex:2;">Compartilhar</button>
+          </div>
+        </div>
+        <div class="result-card">
+          <div class="result-label">Preço Final</div>
+          <div class="result-value text-green" id="desc-res-final">R$ 0,00</div>
+          <div class="result-details">
+            <div class="detail-item"><span>Economia:</span><strong id="desc-res-economia">R$ 0,00</strong></div>
+            <div class="detail-item"><span>Desconto aplicado:</span><strong id="desc-res-taxa">0%</strong></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTADOR DE DIAS -->
+    <section id="view-contador-de-dias" class="view">
+      <nav class="breadcrumb"><a href="#home">← Voltar às ferramentas</a></nav>
+      <h1 style="margin: 1rem 0 0.25rem;">Contador de Dias</h1>
+      <p style="color:var(--text-muted); margin-bottom:1rem;">Descubra intervalos exatos de datas.</p>
+      <div class="tool-layout">
+        <div class="form-card">
+          <div class="form-group">
+            <label for="dias-data">Selecione uma Data</label>
+            <input type="date" id="dias-data">
+          </div>
+          <div style="display:flex; gap:0.5rem;">
+            <button id="btn-dias-hoje" class="btn btn-outline" style="flex:1;">Hoje</button>
+            <button id="btn-dias-compartilhar" class="btn btn-primary" style="flex:2;">Compartilhar</button>
+          </div>
+        </div>
+        <div class="result-card">
+          <div class="result-label" id="dias-res-status">Aguardando data</div>
+          <div class="result-value text-purple" id="dias-res-contagem">0 dias</div>
+          <p id="dias-res-detalhe" style="font-size:0.85rem; color:var(--text-muted);">Escolha uma data acima.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- DIVISOR DE CONTAS -->
+    <section id="view-dividir-conta" class="view">
+      <nav class="breadcrumb"><a href="#home">← Voltar às ferramentas</a></nav>
+      <h1 style="margin: 1rem 0 0.25rem;">Divisor de Contas</h1>
+      <p style="color:var(--text-muted); margin-bottom:1rem;">Divisão de conta sem sobrar nem faltar centavos.</p>
+      <div class="tool-layout">
+        <div class="form-card">
+          <div class="form-group">
+            <label for="div-total">Valor Total da Conta (R$)</label>
+            <input type="text" id="div-total" placeholder="150,00" inputmode="decimal">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="div-pessoas">Pessoas</label>
+              <input type="number" id="div-pessoas" min="1" value="2">
+            </div>
+            <div class="form-group">
+              <label for="div-gorjeta">Gorjeta (%)</label>
+              <input type="number" id="div-gorjeta" min="0" value="10">
+            </div>
+          </div>
+          <div style="display:flex; gap:0.5rem;">
+            <button id="btn-div-limpar" class="btn btn-outline" style="flex:1;">Limpar</button>
+            <button id="btn-div-compartilhar" class="btn btn-primary" style="flex:2;">Compartilhar</button>
+          </div>
+        </div>
+        <div class="result-card">
+          <div class="result-label">Valor por Pessoa</div>
+          <div class="result-value text-green" id="div-res-por-pessoa">R$ 0,00</div>
+          <div class="result-details">
+            <div class="detail-item"><span>Total com gorjeta:</span><strong id="div-res-total">R$ 0,00</strong></div>
+            <div class="detail-item"><span>Soma conferida:</span><strong id="div-res-conferido">R$ 0,00</strong></div>
+          </div>
+          <div id="div-res-aviso" class="badge-reconciliacao"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ORGANIZADOR DE ESTUDOS -->
+    <section id="view-organizador-estudos" class="view">
+      <nav class="breadcrumb"><a href="#home">← Voltar às ferramentas</a></nav>
+      <h1 style="margin: 1rem 0 0.25rem;">Organizador de Estudos</h1>
+      <p style="color:var(--text-muted); margin-bottom:1rem;">Suas matérias salvas direto no aparelho.</p>
+      <div class="study-progress-card">
+        <div class="progress-info"><span>Progresso</span><strong id="study-pct">0%</strong></div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="study-bar" style="width: 0%"></div></div>
+        <span id="study-stats" style="font-size:0.85rem; color:var(--text-muted);">0 tarefas</span>
+      </div>
+      <div class="form-card" style="margin-bottom:1.5rem;">
+        <form id="form-estudos" class="study-add-form" onsubmit="return false;">
+          <input type="text" id="study-titulo" placeholder="O que vai estudar?" required>
+          <input type="text" id="study-materia" placeholder="Matéria (ex: Biologia)" required>
+          <input type="date" id="study-prazo">
+          <button type="submit" class="btn btn-primary">Adicionar</button>
+        </form>
+        <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
+          <button id="btn-study-export" class="btn-sm btn-outline">Exportar (.json)</button>
+          <button id="btn-study-clear" class="btn-sm btn-danger">Limpar Tudo</button>
+        </div>
+        <ul class="task-list" id="task-list"></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>© <span id="current-year"></span> FazFácil — Rápido, leve e gratuito.</p>
+  </footer>
+
+  <script>
+    // NÚCLEO E ROTEAMENTO
+    const app = {
+      toast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 3000);
+      },
+      async share(txt) {
+        if (navigator.share) {
+          try { await navigator.share({ title: 'FazFácil', text: txt, url: window.location.href }); } catch(e){}
+        } else {
+          navigator.clipboard.writeText(txt + ' ' + window.location.href);
+          this.toast('Copiado para a área de transferência!');
+        }
+      },
+      parseBRL(val) {
+        if (!val) return 0;
+        const c = val.toString().replace(/\s/g, '').replace('R$', '');
+        return parseFloat(c.includes(',') && c.includes('.') ? c.replace(/\./g, '').replace(',', '.') : c.replace(',', '.')) || 0;
+      },
+      formatBRL(val) {
+        return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+      }
+    };
+
+    function router() {
+      const h = window.location.hash || '#home';
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      const active = document.getElementById(`view-${h.replace('#', '')}`) || document.getElementById('view-home');
+      active.classList.add('active');
+      window.scrollTo(0,0);
+    }
+    window.addEventListener('hashchange', router);
+
+    // TEMA & BUSCA
+    document.getElementById('current-year').textContent = new Date().getFullYear();
+    const themeBtn = document.getElementById('theme-toggle');
+    themeBtn.onclick = () => {
+      const next = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.body.setAttribute('data-theme', next);
+      localStorage.setItem('ff_theme', next);
+    };
+    if (localStorage.getItem('ff_theme')) document.body.setAttribute('data-theme', localStorage.getItem('ff_theme'));
+
+    document.getElementById('tool-search').oninput = (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      document.querySelectorAll('.tool-card').forEach(c => {
+        c.style.display = (c.dataset.keywords.includes(q) || c.querySelector('h2').textContent.toLowerCase().includes(q)) ? 'flex' : 'none';
+      });
+    };
+
+    // 1. DESCONTO
+    const pOrig = document.getElementById('desc-preco'), pTaxa = document.getElementById('desc-porcentagem');
+    function calcDesc() {
+      const p = app.parseBRL(pOrig.value), t = Math.min(Math.max(parseFloat(pTaxa.value) || 0, 0), 100);
+      const econ = p * (t / 100);
+      document.getElementById('desc-res-final').textContent = app.formatBRL(Math.max(0, p - econ));
+      document.getElementById('desc-res-economia').textContent = app.formatBRL(econ);
+      document.getElementById('desc-res-taxa').textContent = `${t}%`;
+    }
+    pOrig.oninput = calcDesc; pTaxa.oninput = calcDesc;
+    document.getElementById('btn-desc-limpar').onclick = () => { pOrig.value = ''; pTaxa.value = ''; calcDesc(); };
+    document.getElementById('btn-desc-compartilhar').onclick = () => {
+      app.share(`Economizei ${document.getElementById('desc-res-economia').textContent} (${pTaxa.value || 0}% OFF)! Valor final: ${document.getElementById('desc-res-final').textContent}.`);
+    };
+
+    // 2. DIAS
+    const dt = document.getElementById('dias-data');
+    function calcDias() {
+      if (!dt.value) return;
+      const pts = dt.value.split('-'), target = new Date(pts[0], pts[1]-1, pts[2]);
+      const now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const diff = Math.round((target - today) / (1000 * 60 * 60 * 24));
+      const resSt = document.getElementById('dias-res-status'), resCt = document.getElementById('dias-res-contagem'), resDt = document.getElementById('dias-res-detalhe');
+      if (diff === 0) {
+        resSt.textContent = 'É hoje!'; resCt.textContent = '0 dias'; resDt.textContent = 'A data é hoje.';
+      } else if (diff > 0) {
+        resSt.textContent = 'Tempo Restante'; resCt.textContent = `${diff} dias`; resDt.textContent = `Faltam ${diff} dias (${Math.floor(diff/7)} semanas e ${diff%7} dias).`;
+      } else {
+        resSt.textContent = 'Tempo Decorrido'; resCt.textContent = `${Math.abs(diff)} dias`; resDt.textContent = `Já se passaram ${Math.abs(diff)} dias.`;
+      }
+    }
+    dt.onchange = calcDias;
+    document.getElementById('btn-dias-hoje').onclick = () => {
+      const d = new Date();
+      dt.value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      calcDias();
+    };
+    document.getElementById('btn-dias-compartilhar').onclick = () => {
+      app.share(`${document.getElementById('dias-res-status').textContent}: ${document.getElementById('dias-res-contagem').textContent} (${document.getElementById('dias-res-detalhe').textContent})`);
+    };
+
+    // 3. DIVISOR
+    const dTot = document.getElementById('div-total'), dPes = document.getElementById('div-pessoas'), dGor = document.getElementById('div-gorjeta');
+    function calcDiv() {
+      const tot = app.parseBRL(dTot.value), n = Math.max(parseInt(dPes.value, 10) || 1, 1), g = Math.max(parseFloat(dGor.value) || 0, 0);
+      if (tot <= 0) return;
+      const totCents = Math.round(tot * 100 * (1 + g/100)), baseCents = Math.floor(totCents / n), sobra = totCents % n;
+      document.getElementById('div-res-total').textContent = app.formatBRL(totCents / 100);
+      document.getElementById('div-res-conferido').textContent = app.formatBRL(totCents / 100);
+      if (sobra === 0) {
+        document.getElementById('div-res-por-pessoa').textContent = app.formatBRL(baseCents / 100);
+        document.getElementById('div-res-aviso').textContent = 'Divisão exata sem centavos avulsos.';
+      } else {
+        document.getElementById('div-res-por-pessoa').textContent = `${app.formatBRL(baseCents / 100)} ~ ${app.formatBRL((baseCents + 1) / 100)}`;
+        document.getElementById('div-res-aviso').textContent = `${sobra} pessoa(s) pagam 1 centavo a mais para fechar a conta exata.`;
+      }
+    }
+    dTot.oninput = calcDiv; dPes.oninput = calcDiv; dGor.oninput = calcDiv;
+    document.getElementById('btn-div-limpar').onclick = () => { dTot.value = ''; dPes.value = '2'; dGor.value = '10'; calcDiv(); };
+    document.getElementById('btn-div-compartilhar').onclick = () => {
+      app.share(`Divisão da conta: ${document.getElementById('div-res-total').textContent} para ${dPes.value} pessoas = ${document.getElementById('div-res-por-pessoa').textContent} cada.`);
+    };
+
+    // 4. ESTUDOS
+    let tasks = JSON.parse(localStorage.getItem('ff_tasks') || '[]');
+    function renderTasks() {
+      localStorage.setItem('ff_tasks', JSON.stringify(tasks));
+      const done = tasks.filter(t => t.c).length, pct = tasks.length ? Math.round((done / tasks.length) * 100) : 0;
+      document.getElementById('study-pct').textContent = `${pct}%`;
+      document.getElementById('study-bar').style.width = `${pct}%`;
+      document.getElementById('study-stats').textContent = `${done} de ${tasks.length} concluídas`;
+      document.getElementById('task-list').innerHTML = tasks.map((t, idx) => `
+        <li class="task-item ${t.c ? 'done' : ''}">
+          <div style="display:flex; align-items:center; gap:0.5rem;">
+            <input type="checkbox" ${t.c ? 'checked' : ''} onchange="toggleTask(${idx})">
+            <div>
+              <div class="task-title">${t.t}</div>
+              <span class="task-tag">${t.m}</span> ${t.p ? `<small style="color:var(--text-muted)">(${t.p})</small>` : ''}
+            </div>
+          </div>
+          <button class="btn-sm btn-danger" onclick="delTask(${idx})">×</button>
+        </li>
+      `).join('') || '<li style="text-align:center; color:var(--text-muted); padding:1rem;">Nenhuma tarefa cadastrada.</li>';
+    }
+    window.toggleTask = (i) => { tasks[i].c = !tasks[i].c; renderTasks(); };
+    window.delTask = (i) => { tasks.splice(i, 1); renderTasks(); };
+    document.getElementById('form-estudos').onsubmit = () => {
+      const tit = document.getElementById('study-titulo'), mat = document.getElementById('study-materia'), prz = document.getElementById('study-prazo');
+      if (tit.value && mat.value) {
+        tasks.unshift({ t: tit.value, m: mat.value, p: prz.value, c: false });
+        tit.value = ''; mat.value = ''; prz.value = '';
+        renderTasks();
+      }
+    };
+    document.getElementById('btn-study-clear').onclick = () => { if(confirm('Apagar todas as tarefas?')) { tasks = []; renderTasks(); } };
+    document.getElementById('btn-study-export').onclick = () => {
+      const blob = new Blob([JSON.stringify(tasks, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'estudos-fazfacil.json'; a.click();
+    };
+
+    // Inicia
+    renderTasks();
+    router();
+  </script>
+</body>
+</html>
